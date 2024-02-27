@@ -20,11 +20,176 @@ Resources:
       Architectures:
       - x86_64
       Events:
-        S3ObjectCreated:
+        S3ObjectCreatedMP4:
           Type: S3
           Properties:
             Bucket: !Ref VideoProcessingBucket
             Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .mp4
+        S3ObjectCreatedMOV:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .mov
+        S3ObjectCreatedWMV:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .wmv
+        S3ObjectCreatedFLV:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .flv
+        S3ObjectCreatedAVI:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .avi
+        S3ObjectCreatedMKV:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .mkv
+        S3ObjectCreatedWEBM:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .webm
+        S3ObjectCreatedMPEG:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .mpeg
+        S3ObjectCreatedVOB:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .vob
+        S3ObjectCreatedM4V:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .m4v
+        S3ObjectCreatedH264:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .h264
+        S3ObjectCreatedTS:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .ts
+        S3ObjectCreatedMTS:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .mts
+        S3ObjectCreatedDIVX:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .divx
+        S3ObjectCreatedXVID:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .xvid
+        S3ObjectCreatedF4V:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .f4v
+        S3ObjectCreatedMXF:
+          Type: S3
+          Properties:
+            Bucket: !Ref VideoProcessingBucket
+            Events: s3:ObjectCreated:*
+            Filter:
+              S3Key:
+                Rules:
+                  - Name: suffix
+                    Value: .mxf
   LambdaExecutionRole:
     Type: AWS::IAM::Role
     Properties:
