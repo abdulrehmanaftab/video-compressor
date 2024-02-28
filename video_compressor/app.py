@@ -14,6 +14,13 @@ def lambda_handler(event, context):
         print("     ")
         print(key)
 
+        if key.lower().endswith('.zip'):
+            print(f"Object {key} is already a ZIP file. Skipping compression.")
+            return {
+                'statusCode': 200,
+                'body': f"Skipped compression for {key} as it's already in ZIP format."
+            }
+
         obj = s3.get_object(Bucket=bucket_name, Key=key)
         file_content = obj['Body'].read()
         
