@@ -1,32 +1,16 @@
-# video-compressor
+# Video Compressor
 
 This project contains source code and supporting files for a serverless application that you can deploy with the SAM CLI. It includes the following files and folders.
 
-- hello_world - Code for the application's Lambda function.
+- video_compressor - Code for the application's Lambda function.
 - events - Invocation events that you can use to invoke the function.
-- tests - Unit tests for the application code. 
 - template.yaml - A template that defines the application's AWS resources.
 
-The application uses several AWS resources, including Lambda functions and an API Gateway API. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
+The application uses several AWS resources, including Lambda functions and S3 storage. These resources are defined in the `template.yaml` file in this project. You can update the template to add AWS resources through the same deployment process that updates your application code.
 
-If you prefer to use an integrated development environment (IDE) to build and test your application, you can use the AWS Toolkit.  
-The AWS Toolkit is an open source plug-in for popular IDEs that uses the SAM CLI to build and deploy serverless applications on AWS. The AWS Toolkit also adds a simplified step-through debugging experience for Lambda function code. See the following links to get started.
+## Deploy the application
 
-* [CLion](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [GoLand](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [IntelliJ](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [WebStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [Rider](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [PhpStorm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [PyCharm](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [RubyMine](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [DataGrip](https://docs.aws.amazon.com/toolkit-for-jetbrains/latest/userguide/welcome.html)
-* [VS Code](https://docs.aws.amazon.com/toolkit-for-vscode/latest/userguide/welcome.html)
-* [Visual Studio](https://docs.aws.amazon.com/toolkit-for-visual-studio/latest/user-guide/welcome.html)
-
-## Deploy the sample application
-
-The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment and API.
+The Serverless Application Model Command Line Interface (SAM CLI) is an extension of the AWS CLI that adds functionality for building and testing Lambda applications. It uses Docker to run your functions in an Amazon Linux environment that matches Lambda. It can also emulate your application's build environment.
 
 To use the SAM CLI, you need the following tools.
 
@@ -37,7 +21,7 @@ To use the SAM CLI, you need the following tools.
 To build and deploy your application for the first time, run the following in your shell:
 
 ```bash
-sam build --use-container
+sam build
 sam deploy --guided
 ```
 
@@ -49,82 +33,64 @@ The first command will build the source of your application. The second command 
 * **Allow SAM CLI IAM role creation**: Many AWS SAM templates, including this example, create AWS IAM roles required for the AWS Lambda function(s) included to access AWS services. By default, these are scoped down to minimum required permissions. To deploy an AWS CloudFormation stack which creates or modifies IAM roles, the `CAPABILITY_IAM` value for `capabilities` must be provided. If permission isn't provided through this prompt, to deploy this example you must explicitly pass `--capabilities CAPABILITY_IAM` to the `sam deploy` command.
 * **Save arguments to samconfig.toml**: If set to yes, your choices will be saved to a configuration file inside the project, so that in the future you can just re-run `sam deploy` without parameters to deploy changes to your application.
 
-You can find your API Gateway Endpoint URL in the output values displayed after deployment.
+## AWS Lambda Cost Analysis for Video Processing
 
-## Use the SAM CLI to build and test locally
+### Overview
 
-Build your application with the `sam build --use-container` command.
+This document provides a cost analysis for using AWS Lambda to process 1,000,000 video files per hour, with each file averaging 10 MB in size. The analysis considers AWS Lambda's pricing tiers and calculates the estimated monthly cost based on the function's memory allocation and execution duration.
 
-```bash
-video-compressor$ sam build --use-container
-```
+### Lambda Pricing
 
-The SAM CLI installs dependencies defined in `hello_world/requirements.txt`, creates a deployment package, and saves it in the `.aws-sam/build` folder.
+AWS Lambda pricing is based on the number of requests and the duration of each request. The duration cost depends on the amount of memory allocated to the function and the time it takes to execute.
 
-Test a single function by invoking it directly with a test event. An event is a JSON document that represents the input that the function receives from the event source. Test events are included in the `events` folder in this project.
+- **Requests Pricing**: $0.20 per 1 million requests
+- **Duration Pricing**: Varies based on memory allocation and execution duration
 
-Run functions locally and invoke them with the `sam local invoke` command.
+### Examples of Duration Pricing per 1ms
 
-```bash
-video-compressor$ sam local invoke HelloWorldFunction --event events/event.json
-```
+- 128 MB: $0.0000000021
+- 512 MB: $0.0000000083
+- 1024 MB: $0.0000000167
+- 1536 MB: $0.0000000250
+- 2048 MB: $0.0000000333
 
-The SAM CLI can also emulate your application's API. Use the `sam local start-api` to run the API locally on port 3000.
+### Assumptions
 
-```bash
-video-compressor$ sam local start-api
-video-compressor$ curl http://localhost:3000/
-```
+- Each Lambda function invocation processes a single file.
+- The average execution time per file is 1 second (1000 ms).
+- The Lambda function is allocated 1024 MB of memory.
 
-The SAM CLI reads the application template to determine the API's routes and the functions that they invoke. The `Events` property on each function's definition includes the route and method for each path.
+### Calculation
 
-```yaml
-      Events:
-        HelloWorld:
-          Type: Api
-          Properties:
-            Path: /hello
-            Method: get
-```
+#### Monthly Requests
 
-## Add a resource to your application
-The application template uses AWS Serverless Application Model (AWS SAM) to define application resources. AWS SAM is an extension of AWS CloudFormation with a simpler syntax for configuring common serverless application resources such as functions, triggers, and APIs. For resources not included in [the SAM specification](https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md), you can use standard [AWS CloudFormation](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-template-resource-type-ref.html) resource types.
+- **Total Files/Request per Month**: 1,000,000 files/hour * (730 hours in a month) = 730000000 per month
+- **Amount of memory allocated**: 1024 MB x 0.0009765625 GB in a MB = 1 GB
+- **Amount of ephemeral storage allocated**: 512 MB x 0.0009765625 GB in a MB = 0.5 GB
 
-## Fetch, tail, and filter Lambda function logs
+#### Cost for Requests
 
-To simplify troubleshooting, SAM CLI has a command called `sam logs`. `sam logs` lets you fetch logs generated by your deployed Lambda function from the command line. In addition to printing the logs on the terminal, this command has several nifty features to help you quickly find the bug.
+- **Total Request Cost (Monthly)**: 730,000,000 / 1,000,000 * $0.20 = $146
 
-`NOTE`: This command works for all AWS Lambda functions; not just the ones you deploy using SAM.
+#### Cost for Duration
 
-```bash
-video-compressor$ sam logs -n HelloWorldFunction --stack-name "video-compressor" --tail
-```
+Using the price for 1024 MB of memory:
 
-You can find more information and examples about filtering Lambda function logs in the [SAM CLI Documentation](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-sam-cli-logging.html).
+- **Total Compute (Seconds)**: 730,000,000 requests x 300 ms x 0.001 ms to sec conversion factor = 219,000,000.00 total compute (seconds)
+- **Total Compute (GB-s)**: 1 GB x 219,000,000.00 seconds = 219,000,000.00 total compute (GB-s)
+- **First 6 Billion GB-seconds**: $0.0000166667
+- **Monthly Compute Charges**: 219,000,000.00 GB-s x 0.0000166667 USD = 3,650.01 USD
 
-## Tests
+#### Total Monthly Cost
 
-Tests are defined in the `tests` folder in this project. Use PIP to install the test dependencies and run tests.
+- **Total Cost**: Request Cost + Duration Cost = $146 + $3,650.01 = $3,796.01 USD
 
-```bash
-video-compressor$ pip install -r tests/requirements.txt --user
-# unit test
-video-compressor$ python -m pytest tests/unit -v
-# integration test, requiring deploying the stack first.
-# Create the env variable AWS_SAM_STACK_NAME with the name of the stack we are testing
-video-compressor$ AWS_SAM_STACK_NAME="video-compressor" python -m pytest tests/integration -v
-```
+### Conclusion
 
-## Cleanup
+The estimated monthly cost for processing 1,000,000 video files per hour with AWS Lambda, with each invocation allocated 1024 MB of memory, is approximately 3,796.01 USD.
 
-To delete the sample application that you created, use the AWS CLI. Assuming you used your project name for the stack name, you can run the following:
+## Cost Optimization Suggestions
 
-```bash
-sam delete --stack-name "video-compressor"
-```
-
-## Resources
-
-See the [AWS SAM developer guide](https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/what-is-sam.html) for an introduction to SAM specification, the SAM CLI, and serverless application concepts.
-
-Next, you can use AWS Serverless Application Repository to deploy ready to use Apps that go beyond hello world samples and learn how authors developed their applications: [AWS Serverless Application Repository main page](https://aws.amazon.com/serverless/serverlessrepo/)
+1. **Review Execution Time**: Optimize the Lambda function code to reduce execution time, if possible.
+2. **Adjust Memory Allocation**: Test with different memory allocations to find the optimal size that does not significantly affect performance but reduces cost.
+3. **Use Reserved Concurrency**: Consider purchasing reserved concurrency for predictable workloads to benefit from cost savings.
