@@ -6,20 +6,18 @@ from io import BytesIO
 s3 = boto3.client('s3')
 
 def lambda_handler(event, context):
-    print("Starting compressing...")
     for record in event['Records']:
         bucket_name = record['s3']['bucket']['name']
         key = record['s3']['object']['key']
-        print(bucket_name)
-        print("     ")
-        print(key)
-
+        
         if key.lower().endswith('.zip'):
             print(f"Object {key} is already a ZIP file. Skipping compression.")
             return {
                 'statusCode': 200,
                 'body': f"Skipped compression for {key} as it's already in ZIP format."
             }
+        
+        print(f"Starting compressing file: {key}")
 
         obj = s3.get_object(Bucket=bucket_name, Key=key)
         file_content = obj['Body'].read()
